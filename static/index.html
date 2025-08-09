@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EPL Match Predictor</title>
+  <link rel="stylesheet" href="/static/style.css?v=2" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="/pl.png" alt="Premier League Logo" class="pl-logo" />
+      <h1>⚽ EPL Match Predictor</h1>
+    </header>
+
+    <div class="controls">
+      <div class="field">
+        <label for="homeTeam">Home Team</label>
+        <select id="homeTeam"></select>
+      </div>
+
+      <div class="field">
+        <label for="awayTeam">Away Team</label>
+        <select id="awayTeam"></select>
+      </div>
+
+      <div class="field">
+        <label for="season">Season (optional)</label>
+        <input type="number" id="season" placeholder="e.g., 2023" />
+      </div>
+
+      <button onclick="predict()">Predict</button>
+    </div>
+
+    <div class="result hidden" id="result">
+      <div class="probs" id="probs"></div>
+      <div class="label" id="prediction"></div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchTeams() {
+      const res = await fetch('/api/teams');
+      const data = await res.json();
+      const teams = data.teams;
+      const homeSelect = document.getElementById('homeTeam');
+      const awaySelect = document.getElementById('awayTeam');
+      teams.forEach(team => {
+        const o1 = document.createElement('option');
+        o1.value = team; o1.textContent = team; homeSelect.appendChild(o1);
+        const o2 = document.createElement('option');
+        o2.value = team; o2.textContent = team; awaySelect.appendChild(o2);
+      });
+    }
+
+    async function predict() {
+      const homeTeam = document.getElementById('homeTeam').value;
+      const awayTeam = document.getElementById('awayTeam').value;
+      const seasonVal = document.getElementById('season').value;
+      const payload = { homeTeam, awayTeam };
+      if (seasonVal) payload.season = parseInt(seasonVal, 10);
+
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      const resultDiv = document.getElementById('result');
+      const probsDiv = document.getElementById('probs');
+      const predictionLabel = document.getElementById('prediction');
+
+      probsDiv.innerHTML = `
+        <div class="prob"><span>Home Win</span><span>${(data.probs.homeWin*100).toFixed(1)}%</span></div>
+        <div class="prob"><span>Draw</span><span>${(data.probs.draw*100).toFixed(1)}%</span></div>
+        <div class="prob"><span>Away Win</span><span>${(data.probs.awayWin*100).toFixed(1)}%</span></div>
+      `;
+      predictionLabel.innerHTML = `<strong>Predicted:</strong> ${data.predicted} (Season: ${data.season})`;
+      resultDiv.classList.remove('hidden');
+    }
+
+    fetchTeams();
+  </script>
+</body>
+</html>
