@@ -7,4 +7,4 @@ services:
     startCommand: gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT --workers 2 --threads 8 --timeout 180
     envVars:
       - key: EPL_DATA_PATH
-        value: data/epl.csv   # change if you keep a different path
+        value: matches (2).csv   # change if you keep a different path
