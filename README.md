@@ -4,7 +4,7 @@ A lightweight FastAPI service that trains on historical Premier League results a
 <img width="1414" height="698" alt="Screenshot 2025-08-13 at 2 24 31 PM" src="https://github.com/user-attachments/assets/8e250787-bf5c-42c0-800a-c84b6bae10a2" />
 
 
-Backend: FastAPI · Python
+Backend: FastAPI · Python:
 
 ML: pandas · scikit-learn (simple heuristics/counters)
 
